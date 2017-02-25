@@ -83,14 +83,14 @@ sub message
 {
     my @args = @_;
     my $message = $_[0];
-    my $now = formatdate ( time () - 1 );
+    my $now = format_timestamp ( time () );
     print ( $now . " " . $message . "\n" );
 }
 
-sub formatdate
+sub format_timestamp
 {
-    my ( $ts ) = @_;
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime ( $ts );
-    my $retval = sprintf ( "%d-%02d-%02dT%02d:%02d:%02dZ", ( $year + 1900 ), ( $mon + 1 ), $mday, $hour, $min, $sec );
-    return $retval;
+    my ( $timestamp ) = @_;
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime ( $timestamp );
+    my $result = sprintf ( "%d-%02d-%02dT%02d:%02d:%02dZ", ( $year + 1900 ), ( $mon + 1 ), $mday, $hour, $min, $sec );
+    return $result;
 }
