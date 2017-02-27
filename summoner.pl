@@ -15,26 +15,36 @@ local $| = 1;
 #Maximum Parallel Threads
 my $thread_limit = 200;
 
+#Waiting time between checking new task and starting the next thread
+my $waiting_seconds = 5;
+
+my $elapsed;
+my $start = time - $waiting_seconds;
+
 #Main Loop
 for ( ; ; )
 {
+
     my $thread_count = threads -> list ();
     my @joinable_threads = threads -> list ( threads::joinable );
 
     if ( $thread_count < $thread_limit )
     {
-        if ( new_task_awaits () == 1 )
+        if ( waiting () == 0 )
         {
-            my $thread = async { start_new_task ( new_task_parameter () ) };
-            if ( my $error = $thread -> error () )
+            if ( new_task_awaits () == 1 )
             {
-                message ( "Thread error: $error" );
+                my $thread = async { start_new_task ( new_task_parameter () ) };
+                if ( my $error = $thread -> error () )
+                {
+                    message ( "Thread error: $error" );
+                }
+                else
+                {
+                    message ( "Thread " . $thread -> tid () . " has been started." );
+                }
             }
-            else
-            {
-                message ( "Thread " . $thread -> tid () . " has been started." );
-            }
-        };
+        }
     }
 
     foreach ( @joinable_threads )
@@ -52,7 +62,7 @@ for ( ; ; )
 sub new_task_awaits
 {
     my $rnd = int ( rand ( 10001 ) );
-    if ( $rnd > 9999 ) { return 1; } else { return 0; }
+    if ( $rnd > 5000 ) { return 1; } else { return 0; }
 }
 
 sub new_task_parameter
@@ -93,4 +103,20 @@ sub format_timestamp
     my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime ( $timestamp );
     my $result = sprintf ( "%d-%02d-%02dT%02d:%02d:%02dZ", ( $year + 1900 ), ( $mon + 1 ), $mday, $hour, $min, $sec );
     return $result;
+}
+
+sub waiting
+{
+    if ( $waiting_seconds == 0 ) { return 0; }
+    $elapsed = time - $start;
+    if ( $elapsed >= $waiting_seconds )
+    {
+        $elapsed = 0;
+        $start = time;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
