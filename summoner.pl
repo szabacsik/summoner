@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use threads;
-use threads qw(yield);
+use threads ('yield','stack_size' => 128*16384);
 #use Date::Parse;
 #use POSIX qw(strftime);
 
@@ -43,6 +43,7 @@ for ( ; ; )
                 {
                     message ( "Thread " . $thread -> tid () . " has been started." );
                 }
+                sleep 1;
             }
         }
     }
