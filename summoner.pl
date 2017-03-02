@@ -75,7 +75,7 @@ sub start_new_task
 {
     my @args = @_;
     my $command = 'printf `date +%H:%M:%S.%N`; sleep ' . $_[0] . '; printf -; printf `date +%H:%M:%S.%N`';
-    my $output = `$command`;
+    my $output = `$command 2>&1`;
     message ( "Finished thread's output: " . $output );
 }
 
